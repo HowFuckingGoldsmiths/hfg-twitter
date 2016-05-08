@@ -11,7 +11,6 @@ var client = new Twitter({
 client.stream('statuses/filter', {track: 'HowFuckingGoldsmiths'}, function(stream) {
   stream.on('data', function(tweet) {
     if(tweet.entities.media && tweet.entities.media.length > 0 && tweet.entities.media[0].type == 'photo') {
-      //work it out and tweet
       request.get('http://api.howfuckinggoldsmiths.tech/v1/image?url=' + tweet.entities.media[0].media_url, function(err, response, body) {
         if(err) throw error;
 
@@ -28,6 +27,24 @@ client.stream('statuses/filter', {track: 'HowFuckingGoldsmiths'}, function(strea
         }
 
         client.post('statuses/update', {status: '@' + tweet.user.screen_name + ' ' + body + ' ' + message},  function(err, restweet, response) {
+          if(err) throw error;
+        });
+      });
+    }
+  });
+
+  stream.on('error', function(err) {
+    throw err;
+  });
+});
+
+client.stream('statuses/filter', {track: 'SoFuckingGoldsmiths'}, function(stream) {
+  stream.on('data', function(tweet) {
+    if(tweet.entities.media && tweet.entities.media.length > 0 && tweet.entities.media[0].type == 'photo') {
+      request.post({url:'http://api.howfuckinggoldsmiths.tech/v1/image/tag', form: {url: tweet.entities.media[0].media_url}}, function(err, response, body){
+        if(err) throw error;
+
+        client.post('statuses/update', {status: '@' + tweet.user.screen_name + ' tagged!'},  function(err, restweet, response) {
           if(err) throw error;
         });
       });
